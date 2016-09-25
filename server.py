@@ -10,7 +10,9 @@ from views import ChatAPI
 
 
 app = Flask(__name__)
-#TODO Switch to pyres worker
+
+
+# TODO Switch to pyres worker
 class Listener(threading.Thread):
     def __init__(self, channels):
         threading.Thread.__init__(self)
@@ -18,7 +20,7 @@ class Listener(threading.Thread):
         self.pubsub = self.redis.pubsub()
         self.pubsub.subscribe(channels)
 
-    #TODO assign each listener a set of rules and slack details
+    # TODO assign each listener a set of rules and slack details
     def run(self):
         for item in self.pubsub.listen():
             pass
@@ -40,18 +42,17 @@ class Poller(threading.Thread):
     def run(self):
         self.poll()
 
+
 def main():
-    r = redis.Redis()
-    #TODO assign listeners from POSTGRES
-    c1 = Listener(['kills'])
-    c1.start()
-
-    poller = Poller('kills')
-    poller.start()
-
-
+    # TODO assign listeners from POSTGRES
     app.add_url_rule('/chat', view_func=ChatAPI.as_view('chat'))
+    app.add_url_rule('/listener', view_func=ChatAPI.as_view('chat'))
     app.run(debug=True, port=5000)
+    # c1 = Listener(['kills'])
+    # c1.start()
+
+    # poller = Poller('kills')
+    # poller.start()
 
 
 main()
