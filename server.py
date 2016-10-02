@@ -3,14 +3,15 @@ import json
 import redis
 import threading
 from flask import Flask
+from flask_socketio import SocketIO, emit
 
 from models import Killmail
 
-from views import ChatAPI
+from views import ChatAPI, ListenerAPI, BroadcasterAPI
 
 
 app = Flask(__name__)
-
+socketio = SocketIO(app)
 
 # TODO Switch to pyres worker
 class Listener(threading.Thread):
@@ -43,14 +44,21 @@ class Poller(threading.Thread):
         self.poll()
 
 
+@socketio.on('message')
+def handle(msg):
+    print('emitting')
+    emit('message', msg, broadcast=True)
+
+
+
 def main():
     # TODO assign listeners from POSTGRES
     app.add_url_rule('/chat', view_func=ChatAPI.as_view('chat'))
-    app.add_url_rule('/listener', view_func=ChatAPI.as_view('chat'))
-    app.run(debug=True, port=5000)
+    app.add_url_rule('/listener', view_func=ListenerAPI.as_view('listner'))
+    app.add_url_rule('/broadcaster', view_func=BroadcasterAPI.as_view('broadcaster'))
+    socketio.run(app=app, debug=True, port=5000)
     # c1 = Listener(['kills'])
     # c1.start()
-
     # poller = Poller('kills')
     # poller.start()
 

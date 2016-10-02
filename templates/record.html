@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body %}
+<script src="http://cdn.socket.io/stable/socket.io.js"></script>
+<script>
+var socket = new io.Socket('localhost',{
+	port: 5000
+});
+socket.connect(); 
+</script>
+{% endvlock %}
